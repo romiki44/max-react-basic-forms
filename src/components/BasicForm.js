@@ -1,14 +1,16 @@
 import useInput from '../hooks/use-input';
 
+//nemusi byt vnutri komponentu
+const enteredNameValidation = (value) => {
+  return value.trim() !== '';
+};
+
+//nemusia byt vnutri komponentu
+const enteredEmailValidation = (value) => {
+  return value.includes('@');
+};
+
 const BasicForm = (props) => {
-  const enteredNameValidation = (value) => {
-    return value.trim() !== '';
-  };
-
-  const enteredEmailValidation = (value) => {
-    return value.includes('@');
-  };
-
   const {
     value: enteredFirstName,
     valueIsValid: enteredFirstNameIsValid,
