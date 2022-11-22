@@ -1,39 +1,85 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 const SimpleInput = (props) => {
-  const nameInputRef = useRef();
   const [enteredName, setEnteredName] = useState('');
+  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+
+  const [enteredEmail, setEnteredEmail] = useState('');
+  const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
+
+  const enteredNameIsValid = enteredName.trim() !== '';
+  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
+
+  const enteredEmailIsValid =
+    enteredEmail.trim() !== '' && enteredEmail.includes('@');
+  const emailInputIsInvalid = !enteredEmailIsValid && enteredEmailTouched;
 
   const nameChangeInputHandler = (event) => {
     setEnteredName(event.target.value);
   };
 
-  const formSubmitHandler = (event) => {
-    //vzdy treba volat, lebo inac sa vola server, cize urobi reload stranky
-    event.preventDefault();
-    //jedna moznost..value cez useState..vyhodnejsie pre dalsie spracovanie
-    console.log(enteredName);
-    //druha moznost...value cez useRef()...ak staci len nacitat a nic viac
-    const enteredRefName = nameInputRef.current.value;
-    console.log(enteredRefName);
-
-    //alebo pre 2-way bindig...nastavime cez premmenu html-input
-    setEnteredName('');
-    //iba cez useState...ale nie cez useRef!
-    //resp. ide to ale iba za priamej manipulacie DOMu...neni dobre, mali by sme pouzivatr react
-    //nameInputRef.current.value = '';
+  const nameInputBlurHandler = () => {
+    setEnteredNameTouched(true);
   };
+
+  const emailChangeInputHandler = (event) => {
+    setEnteredEmail(event.target.value);
+  };
+
+  const emailInputBlurHandler = () => {
+    setEnteredEmailTouched(true);
+  };
+
+  const formSubmitHandler = (event) => {
+    event.preventDefault();
+    setEnteredNameTouched(true);
+    setEnteredEmailTouched(true);
+    if (!enteredNameIsValid || !enteredEmailIsValid) {
+      return;
+    }
+    console.log(enteredName + ': ' + enteredEmail);
+    setEnteredName('');
+    setEnteredEmail('');
+    //neviem, Max tvrdi ze treba aj toto, ale meno to funguju aj bez...
+    setEnteredNameTouched(false);
+    setEnteredEmailTouched(false);
+  };
+
+  const nameInputClasses = nameInputIsInvalid
+    ? 'form-control invalid'
+    : 'form-control';
+
+  const emailInputClasses = emailInputIsInvalid
+    ? 'form-control invalid'
+    : 'form-control';
+
   return (
     <form onSubmit={formSubmitHandler}>
-      <div className='form-control'>
+      <div className={nameInputClasses}>
         <label htmlFor='name'>Your Name</label>
         <input
-          ref={nameInputRef}
           type='text'
           id='name'
           onChange={nameChangeInputHandler}
+          onBlur={nameInputBlurHandler}
           value={enteredName}
         />
+        {nameInputIsInvalid && (
+          <p className='error-text'>Name must not be empty.</p>
+        )}
+      </div>
+      <div className={emailInputClasses}>
+        <label htmlFor='email'>Your Email</label>
+        <input
+          type='email'
+          id='email'
+          onChange={emailChangeInputHandler}
+          onBlur={emailInputBlurHandler}
+          value={enteredEmail}
+        />
+        {emailInputIsInvalid && (
+          <p className='error-text'>Email must be not empty valid email.</p>
+        )}
       </div>
       <div className='form-actions'>
         <button>Submit</button>
